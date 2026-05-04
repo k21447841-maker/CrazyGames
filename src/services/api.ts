@@ -16,7 +16,7 @@ async function fetchJson(url: string, options?: RequestInit) {
     return data;
   } catch (err) {
     if (err instanceof SyntaxError) {
-      throw new Error(`Server returned invalid response. Server might be down or restarting. Details: ${text.substring(0, 100)}`);
+      throw new Error(`Failed to parse response from ${url}: Server returned invalid response. Server might be down or restarting. Details: ${text.substring(0, 100)}`);
     }
     throw err;
   }
