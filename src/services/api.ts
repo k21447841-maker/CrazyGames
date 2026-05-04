@@ -5,37 +5,49 @@ function getAuthHeader() {
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
+async function fetchJson(url: string, options?: RequestInit) {
+  const res = await fetch(url, options);
+  const text = await res.text();
+  try {
+    const data = text ? JSON.parse(text) : null;
+    if (!res.ok) {
+      throw new Error((data && data.error) || data || res.statusText);
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      throw new Error(`Server returned invalid response. Server might be down or restarting. Details: ${text.substring(0, 100)}`);
+    }
+    throw err;
+  }
+}
+
 export const api = {
   // Games
-  getGames: async () => fetch(`${API_BASE}/games`).then(res => res.json()),
-  getAdminGames: async () => fetch(`${API_BASE}/games/admin`, { headers: getAuthHeader() }).then(res => res.json()),
-  getGame: async (id: string) => fetch(`${API_BASE}/games/${id}`).then(res => res.json()),
-  createGame: async (data: any) => fetch(`${API_BASE}/games`, {
+  getGames: async () => fetchJson(`${API_BASE}/games`),
+  getAdminGames: async () => fetchJson(`${API_BASE}/games/admin`, { headers: getAuthHeader() }),
+  getGame: async (id: string) => fetchJson(`${API_BASE}/games/${id}`),
+  createGame: async (data: any) => fetchJson(`${API_BASE}/games`, {
     method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeader() }, body: JSON.stringify(data)
-  }).then(res => res.json()),
-  updateGame: async (id: string, data: any) => fetch(`${API_BASE}/games/${id}`, {
+  }),
+  updateGame: async (id: string, data: any) => fetchJson(`${API_BASE}/games/${id}`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json', ...getAuthHeader() }, body: JSON.stringify(data)
-  }).then(res => res.json()),
-  deleteGame: async (id: string) => fetch(`${API_BASE}/games/${id}`, {
+  }),
+  deleteGame: async (id: string) => fetchJson(`${API_BASE}/games/${id}`, {
     method: 'DELETE', headers: getAuthHeader()
-  }).then(res => res.json()),
-  rateGame: async (id: string, rating: number) => fetch(`${API_BASE}/games/${id}/rate`, {
+  }),
+  rateGame: async (id: string, rating: number) => fetchJson(`${API_BASE}/games/${id}/rate`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rating })
-  }).then(res => res.json()),
+  }),
   
   // Auth
-  login: async (email: string, password: string) => {
-    const res = await fetch(`${API_BASE}/admin/login`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Login failed');
-    return data;
-  },
+  login: async (email: string, password: string) => fetchJson(`${API_BASE}/admin/login`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
+  }),
   
   // Ads
-  getAdSettings: async () => fetch(`${API_BASE}/ads/settings`).then(res => res.json()),
-  updateAdSettings: async (data: any) => fetch(`${API_BASE}/ads/settings`, {
+  getAdSettings: async () => fetchJson(`${API_BASE}/ads/settings`),
+  updateAdSettings: async (data: any) => fetchJson(`${API_BASE}/ads/settings`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json', ...getAuthHeader() }, body: JSON.stringify(data)
-  }).then(res => res.json()),
+  }),
 };
