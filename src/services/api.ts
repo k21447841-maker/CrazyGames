@@ -33,6 +33,9 @@ export const api = {
   updateGame: async (id: string, data: any) => fetchJson(`${API_BASE}/games/${id}`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json', ...getAuthHeader() }, body: JSON.stringify(data)
   }),
+  bulkUpdateGames: async (ids: string[], data: any) => fetchJson(`${API_BASE}/games/bulk-update`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json', ...getAuthHeader() }, body: JSON.stringify({ ids, data })
+  }),
   deleteGame: async (id: string) => fetchJson(`${API_BASE}/games/${id}`, {
     method: 'DELETE', headers: getAuthHeader()
   }),

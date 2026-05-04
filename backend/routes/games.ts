@@ -69,6 +69,34 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
   }
 });
 
+// PUT bulk update games (activate/deactivate)
+router.put('/bulk-update', authMiddleware, async (req: Request, res: Response) => {
+  const { ids, data } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ error: 'No game IDs provided' });
+  }
+
+  if (!isDbConnected) {
+    mockDb.games = mockDb.games.map(g => {
+      if (ids.includes(g._id)) {
+        return { ...g, ...data };
+      }
+      return g;
+    });
+    return res.json({ success: true, count: ids.length });
+  }
+
+  try {
+    const result = await Game.updateMany(
+      { _id: { $in: ids } },
+      { $set: data }
+    );
+    res.json({ success: true, count: result.modifiedCount });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // PUT update game
 router.put('/:id', authMiddleware, async (req: Request, res: Response) => {
   if (!isDbConnected) {

@@ -13,6 +13,7 @@ export function AdminDashboard() {
   const [games, setGames] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'games' | 'ads' | 'add'>('games');
+  const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set());
 
   // Form states
   const [formData, setFormData] = useState({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Action', tags: '' });
@@ -24,6 +25,7 @@ export function AdminDashboard() {
       return;
     }
     fetchData();
+    setSelectedGames(new Set());
   }, [user]);
 
   useEffect(() => {
@@ -45,6 +47,37 @@ export function AdminDashboard() {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedGames.size === games.length) {
+      setSelectedGames(new Set());
+    } else {
+      setSelectedGames(new Set(games.map(g => g._id)));
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    const newSet = new Set(selectedGames);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+    } else {
+      newSet.add(id);
+    }
+    setSelectedGames(newSet);
+  };
+
+  const handleBulkUpdate = async (active: boolean) => {
+    if (selectedGames.size === 0) return;
+    setLoading(true);
+    try {
+      await api.bulkUpdateGames(Array.from(selectedGames), { active });
+      fetchData();
+      setSelectedGames(new Set());
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
   };
 
   const handleAddGame = async (e: React.FormEvent) => {
@@ -125,12 +158,33 @@ export function AdminDashboard() {
         <div className="max-w-4xl mx-auto">
           {activeTab === 'games' && (
             <div>
-              <h2 className="text-3xl font-black mb-8 flex items-center"><ListVideo className="mr-3 w-8 h-8 text-violet-500" /> Game Library</h2>
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-3xl font-black flex items-center"><ListVideo className="mr-3 w-8 h-8 text-violet-500" /> Game Library</h2>
+                {selectedGames.size > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-400 mr-2">{selectedGames.size} selected</span>
+                    <button onClick={() => handleBulkUpdate(true)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20">
+                      Activate
+                    </button>
+                    <button onClick={() => handleBulkUpdate(false)} className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-rose-500/20">
+                      Deactivate
+                    </button>
+                  </div>
+                )}
+              </div>
               <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
                 <table className="w-full text-left">
                   <thead className="bg-slate-800/80 text-slate-400 text-sm tracking-wide uppercase font-bold">
                     <tr>
-                      <th className="p-5 font-bold">Title</th>
+                      <th className="p-5 font-bold w-12">
+                        <input 
+                          type="checkbox" 
+                          checked={games.length > 0 && selectedGames.size === games.length}
+                          onChange={handleToggleSelectAll}
+                          className="w-4 h-4 rounded border-slate-700 text-violet-600 focus:ring-violet-500 bg-slate-900 cursor-pointer transition-all"
+                        />
+                      </th>
+                      <th className="py-5 pr-5 font-bold">Title</th>
                       <th className="p-5 font-bold">Category</th>
                       <th className="p-5 font-bold">Status</th>
                       <th className="p-5 font-bold text-right">Actions</th>
@@ -138,8 +192,16 @@ export function AdminDashboard() {
                   </thead>
                   <tbody className="divide-y divide-slate-800/50">
                     {games.map(game => (
-                      <tr key={game._id} className="hover:bg-slate-800/50 transition-colors duration-300 ease-in-out">
-                        <td className="p-5 font-bold text-white">{game.title}</td>
+                      <tr key={game._id} className={`hover:bg-slate-800/50 transition-colors duration-300 ease-in-out ${selectedGames.has(game._id) ? 'bg-violet-900/10' : ''}`}>
+                        <td className="p-5">
+                          <input 
+                            type="checkbox" 
+                            checked={selectedGames.has(game._id)}
+                            onChange={() => handleToggleSelect(game._id)}
+                            className="w-4 h-4 rounded border-slate-700 text-violet-600 focus:ring-violet-500 bg-slate-900 cursor-pointer transition-all"
+                          />
+                        </td>
+                        <td className="py-5 pr-5 font-bold text-white">{game.title}</td>
                         <td className="p-5"><span className="bg-slate-800 border border-slate-700 text-violet-400 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider">{game.category}</span></td>
                         <td className="p-5">
                           <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${game.active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
