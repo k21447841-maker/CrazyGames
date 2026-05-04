@@ -1,0 +1,50 @@
+{
+  "entities": {
+    "Game": {
+      "title": "Game",
+      "description": "A game available to play",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "thumbnail": { "type": "string" },
+        "embedUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "tags": { "type": "string" },
+        "active": { "type": "boolean" },
+        "plays": { "type": "number" },
+        "rating": { "type": "number" },
+        "ratingCount": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["title", "description", "thumbnail", "embedUrl", "category", "active", "plays", "rating", "ratingCount", "createdAt"]
+    },
+    "AdSettings": {
+      "title": "AdSettings",
+      "description": "Global ad settings for the application",
+      "type": "object",
+      "properties": {
+        "videoEnabled": { "type": "boolean" },
+        "bannerEnabled": { "type": "boolean" },
+        "videoCooldown": { "type": "number" },
+        "bannerInterval": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["videoEnabled", "bannerEnabled", "videoCooldown", "bannerInterval", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "games/{gameId}": {
+      "schema": {
+        "$ref": "#/entities/Game"
+      },
+      "description": "Collections of games."
+    },
+    "settings/ads": {
+      "schema": {
+        "$ref": "#/entities/AdSettings"
+      },
+      "description": "Singleton configuration for Ads."
+    }
+  }
+}

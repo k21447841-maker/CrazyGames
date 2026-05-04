@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+    
+    function isValidGame(data) {
+      return data.keys().hasAll(['title', 'description', 'thumbnail', 'embedUrl', 'category', 'active', 'plays', 'rating', 'ratingCount', 'createdAt'])
+        && data.title is string && data.title.size() <= 200
+        && data.description is string && data.description.size() <= 2000
+        && data.thumbnail is string && data.thumbnail.size() <= 1000
+        && data.embedUrl is string && data.embedUrl.size() <= 1000
+        && data.category is string && data.category.size() <= 100
+        && (!('tags' in data) || (data.tags is list && data.tags.size() <= 50))
+        && data.active is bool
+        && data.plays is number
+        && data.rating is number
+        && data.ratingCount is number
+        && data.createdAt is number;
+    }
+    
+    function isValidAdSettings(data) {
+      return data.keys().hasAll(['videoEnabled', 'bannerEnabled', 'videoCooldown', 'bannerInterval', 'updatedAt'])
+        && data.videoEnabled is bool
+        && data.bannerEnabled is bool
+        && data.videoCooldown is number
+        && data.bannerInterval is number
+        && data.updatedAt is number;
+    }
+
+    match /games/{gameId} {
+      allow read: if isValidId(gameId);
+      allow list: if true; // Publicly readable list of games
+      
+      allow create: if isValidId(gameId) && isAdmin() && isValidGame(incoming()) && incoming().createdAt == request.time.toMillis();
+      
+      allow update: if isValidId(gameId) && (isAdmin() || (
+        incoming().diff(existing()).affectedKeys().hasOnly(['rating', 'ratingCount', 'plays']) 
+        && incoming().rating is number 
+        && incoming().ratingCount is number
+        && incoming().plays is number
+        && incoming().ratingCount == existing().ratingCount + 1
+        && incoming().plays >= existing().plays
+      )) && isValidGame(incoming());
+
+      allow delete: if isValidId(gameId) && isAdmin();
+    }
+    
+    match /settings/ads {
+      allow read: if true;
+      allow write: if isAdmin() && isValidAdSettings(incoming()) && incoming().updatedAt == request.time.toMillis();
+    }
+    
+    match /admins/{userId} {
+      allow read: if request.auth.uid == userId;
+      // Allow bootstrap for specific user email
+      allow create: if request.auth.uid == userId && request.auth.token.email == 'shmalik479@gmail.com';
+      allow write: if false; 
+    }
+  }
+}

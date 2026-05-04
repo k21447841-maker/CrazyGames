@@ -31,7 +31,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(newUser);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      const { auth } = await import('../firebase');
+      await auth.signOut();
+    } catch(err) {
+      console.error('Firebase signout error', err);
+    }
     setToken(null);
     setUser(null);
   };
