@@ -1,10 +1,31 @@
-import { db, auth } from '../firebase';
+import { db, auth, storage } from '../firebase';
 import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { OperationType, handleFirestoreError } from '../firebaseUtils';
 
 export const api = {
   // Games
+  
+  uploadFile: async (file: File, folder: string = 'games') => {
+    try {
+      if (!file) throw new Error('No file provided');
+      const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const storageRef = ref(storage, `${folder}/${filename}`);
+      
+      const metadata: any = {};
+      if (file.name.endsWith('.html')) metadata.contentType = 'text/html';
+      else if (file.name.endsWith('.zip')) metadata.contentType = 'application/zip';
+      else metadata.contentType = file.type;
+
+      const snapshot = await uploadBytes(storageRef, file, metadata);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      return downloadURL;
+    } catch (error: any) {
+      console.error("Storage upload error:", error);
+      throw new Error(`Failed to upload file to storage. \n⚠️ Note: Firebase Storage Rules must be set to 'allow read, write: if true;' in your Firebase Console. Error details: ${error.message}`);
+    }
+  },
   getGames: async () => {
     try {
       const q = query(collection(db, 'games'), where('active', '==', true));
@@ -71,6 +92,18 @@ export const api = {
       return { success: true };
     } catch (error) {
       return handleFirestoreError(error, OperationType.UPDATE, 'games/bulk');
+    }
+  },
+  bulkDeleteGames: async (ids: string[]) => {
+    try {
+      const batch = writeBatch(db);
+      ids.forEach(id => {
+         batch.delete(doc(db, 'games', id));
+      });
+      await batch.commit();
+      return { success: true };
+    } catch (error) {
+      return handleFirestoreError(error, OperationType.DELETE, 'games/bulk');
     }
   },
   deleteGame: async (id: string) => {

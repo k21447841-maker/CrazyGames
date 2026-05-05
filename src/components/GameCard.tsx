@@ -57,7 +57,7 @@ export function GameCard({ game }: GameCardProps) {
             </div>
             
             <button className="w-full py-3 bg-white text-black rounded-2xl font-black uppercase text-sm tracking-wide group-hover:bg-violet-500 group-hover:text-white transition-all duration-300 ease-in-out group-active:scale-95">
-              Play Now
+              Get Panel
             </button>
           </div>
         </div>

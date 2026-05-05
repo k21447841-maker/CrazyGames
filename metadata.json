@@ -1,6 +1,6 @@
 {
-  "name": "Game Portal",
-  "description": "A full-stack gaming website where users can play games and admins can manage content and ads.",
+  "name": "Panel Store",
+  "description": "A full-stack store where users can download gaming panels and mods for Free Fire, BGMI, and more.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

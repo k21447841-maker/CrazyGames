@@ -17,7 +17,7 @@ export function Navbar() {
               <GamepadIcon className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 hidden sm:block">
-              NEON ARCADE
+              PANEL STORE
             </span>
           </Link>
         </div>

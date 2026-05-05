@@ -10,13 +10,13 @@ export function Footer() {
           <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center group-hover:bg-slate-700 transition-colors">
             <GamepadIcon className="w-4 h-4 text-violet-400" />
           </div>
-          <span className="font-black tracking-widest text-slate-300 uppercase">NEON ARCADE</span>
+          <span className="font-black tracking-widest text-slate-300 uppercase">PANEL STORE</span>
         </div>
         <p className="text-sm font-medium text-slate-500 flex items-center">
           Built with <Heart className="w-4 h-4 text-pink-500 mx-2 fill-current" /> for gamers everywhere
         </p>
         <p className="text-xs font-bold tracking-wider text-slate-600 uppercase">
-          © {new Date().getFullYear()} Neon Arcade. All rights reserved.
+          © {new Date().getFullYear()} Panel Store. All rights reserved.
         </p>
       </div>
     </footer>

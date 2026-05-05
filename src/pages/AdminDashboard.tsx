@@ -17,7 +17,10 @@ export function AdminDashboard() {
   const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set());
 
   // Form states
-  const [formData, setFormData] = useState({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Action', tags: '' });
+  const [formData, setFormData] = useState({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Free Fire', tags: '' });
+  const [thumbFile, setThumbFile] = useState<File | null>(null);
+  const [gameFile, setGameFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [adForm, setAdForm] = useState(settings);
 
   useEffect(() => {
@@ -88,12 +91,40 @@ export function AdminDashboard() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedGames.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedGames.size} panels forever?`)) return;
+    setLoading(true);
+    try {
+      await api.bulkDeleteGames(Array.from(selectedGames));
+      fetchData();
+      setSelectedGames(new Set());
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
+
   const handleAddGame = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading) return;
     setError(null);
+    setUploading(true);
     try {
-      await api.createGame({ ...formData, tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean) });
-      setFormData({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Action', tags: '' });
+      let finalThumbnailUrl = formData.thumbnail;
+      let finalEmbedUrl = formData.embedUrl;
+
+      if (thumbFile) {
+        finalThumbnailUrl = await api.uploadFile(thumbFile, 'thumbnails');
+      }
+      if (gameFile) {
+        finalEmbedUrl = await api.uploadFile(gameFile, 'source');
+      }
+
+      await api.createGame({ ...formData, thumbnail: finalThumbnailUrl, embedUrl: finalEmbedUrl, tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean) });
+      setFormData({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Free Fire', tags: '' });
+      setThumbFile(null);
+      setGameFile(null);
       setActiveTab('games');
       fetchData();
     } catch (err: any) {
@@ -104,18 +135,20 @@ export function AdminDashboard() {
         errMsg = parsed.error || errMsg;
       } catch (e) {}
       setError(errMsg);
+    } finally {
+      setUploading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Delete this game?')) {
+    if (confirm('Delete this panel?')) {
       setError(null);
       try {
         await api.deleteGame(id);
         fetchData();
       } catch (err: any) {
         console.error(err);
-        let errMsg = err?.message || 'Failed to delete game.';
+        let errMsg = err?.message || 'Failed to delete panel.';
         try {
           const parsed = JSON.parse(errMsg);
           errMsg = parsed.error || errMsg;
@@ -166,10 +199,10 @@ export function AdminDashboard() {
         </div>
         <nav className="flex-1 p-6 flex flex-col gap-2">
           <button onClick={() => setActiveTab('games')} className={`w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold ${activeTab === 'games' ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-            <ListVideo className="w-5 h-5 mr-3" /> Manage Games
+            <ListVideo className="w-5 h-5 mr-3" /> Manage Panels
           </button>
           <button onClick={() => setActiveTab('add')} className={`w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold ${activeTab === 'add' ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-            <Plus className="w-5 h-5 mr-3" /> Add Game
+            <Plus className="w-5 h-5 mr-3" /> Add Panel
           </button>
           <button onClick={() => setActiveTab('ads')} className={`w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold ${activeTab === 'ads' ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Settings className="w-5 h-5 mr-3" /> Global Settings
@@ -194,15 +227,18 @@ export function AdminDashboard() {
           {activeTab === 'games' && (
             <div>
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-black flex items-center"><ListVideo className="mr-3 w-8 h-8 text-violet-500" /> Game Library</h2>
+                <h2 className="text-3xl font-black flex items-center"><ListVideo className="mr-3 w-8 h-8 text-violet-500" /> Panel Library</h2>
                 {selectedGames.size > 0 && (
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-slate-400 mr-2">{selectedGames.size} selected</span>
                     <button onClick={() => handleBulkUpdate(true)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20">
                       Activate
                     </button>
-                    <button onClick={() => handleBulkUpdate(false)} className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-rose-500/20">
+                    <button onClick={() => handleBulkUpdate(false)} className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-yellow-500/20">
                       Deactivate
+                    </button>
+                    <button onClick={handleBulkDelete} className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-rose-500/20">
+                      Delete Selected
                     </button>
                   </div>
                 )}
@@ -252,7 +288,7 @@ export function AdminDashboard() {
                     ))}
                     {games.length === 0 && (
                       <tr>
-                        <td colSpan={4} className="p-10 text-center font-medium text-slate-500 bg-slate-900/50">No games found. Go add some!</td>
+                        <td colSpan={4} className="p-10 text-center font-medium text-slate-500 bg-slate-900/50">No panels found. Go add some!</td>
                       </tr>
                     )}
                   </tbody>
@@ -263,7 +299,7 @@ export function AdminDashboard() {
 
           {activeTab === 'add' && (
             <div>
-              <h2 className="text-3xl font-black mb-8 flex items-center"><Plus className="mr-3 w-8 h-8 text-violet-500" /> Add New Game</h2>
+              <h2 className="text-3xl font-black mb-8 flex items-center"><Plus className="mr-3 w-8 h-8 text-violet-500" /> Add New Panel</h2>
               <form onSubmit={handleAddGame} className="bg-slate-900 p-8 rounded-3xl border border-slate-800 space-y-6 shadow-xl">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="col-span-2 md:col-span-1">
@@ -273,7 +309,7 @@ export function AdminDashboard() {
                   <div className="col-span-2 md:col-span-1">
                     <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide">Category</label>
                     <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20 appearance-none">
-                      {['Action', 'Puzzle', 'Racing', 'Strategy', 'Arcade', 'Sports'].map(c => <option key={c} value={c}>{c}</option>)}
+                      {['Free Fire', 'BGMI', 'PUBG Mobile', 'Roblox', 'Minecraft', 'Other'].map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
@@ -285,18 +321,24 @@ export function AdminDashboard() {
 
                 <div>
                   <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
-                    Thumbnail URL
+                    Thumbnail Image
                   </label>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Game ki cover image ya icon ka URL/Link yahan dalein. (Aap online kisi bhi image ka link yahan daal sakte hain).</p>
-                  <input type="url" required value={formData.thumbnail} onChange={e => setFormData({...formData, thumbnail: e.target.value})} placeholder="https://..." className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
+                  <p className="text-xs text-slate-500 mb-2 font-medium">Upload an image file OR paste a URL.</p>
+                  <div className="flex gap-4">
+                    <input type="file" accept="image/*" onChange={e => { setThumbFile(e.target.files?.[0] || null); setFormData({...formData, thumbnail: ''}); }} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-violet-600 file:text-white hover:file:bg-violet-500" />
+                    <input type="url" required={!thumbFile} disabled={!!thumbFile} value={formData.thumbnail} onChange={e => setFormData({...formData, thumbnail: e.target.value})} placeholder="Or paste https://..." className={`w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow ${thumbFile ? 'opacity-50' : ''}`} />
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
-                    Embed Code / Iframe URL
+                    Panel Source (File OR Download URL)
                   </label>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Yeh sabse main cheez hai. Yahan game ko play karne wala link dalein. Aap HTML5 games websites (jaise GameDistribution, PacoGames) se embed link copy kar sakte hain.</p>
-                  <input type="text" required value={formData.embedUrl} onChange={e => setFormData({...formData, embedUrl: e.target.value})} placeholder="https://html5.gamedistribution.com/..." className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
+                  <p className="text-xs text-slate-500 mb-2 font-medium">Upload a <b>.zip / .apk</b> file for your panel, OR paste a Download Link (e.g. from Google Drive).</p>
+                  <div className="flex gap-4 flex-col sm:flex-row">
+                    <input type="file" accept=".zip,.apk,.rar,.txt" onChange={e => { setGameFile(e.target.files?.[0] || null); setFormData({...formData, embedUrl: ''}); }} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-violet-600 file:text-white hover:file:bg-violet-500" />
+                    <input type="text" required={!gameFile} disabled={!!gameFile} value={formData.embedUrl} onChange={e => setFormData({...formData, embedUrl: e.target.value})} placeholder="Or paste https://..." className={`w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow ${gameFile ? 'opacity-50' : ''}`} />
+                  </div>
                 </div>
 
                 <div>
@@ -304,10 +346,11 @@ export function AdminDashboard() {
                   <input type="text" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} placeholder="retro, difficult, fast" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
                 </div>
 
-                <div className="pt-6 border-t border-slate-800">
-                  <button type="submit" className="w-full md:w-auto px-8 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-black uppercase tracking-wider transition-all duration-300 ease-in-out shadow-lg shadow-violet-500/30">
-                    Publish Game
+                <div className="pt-6 border-t border-slate-800 flex items-center gap-4">
+                  <button type="submit" disabled={uploading} className={`w-full md:w-auto px-8 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-black uppercase tracking-wider transition-all duration-300 ease-in-out shadow-lg shadow-violet-500/30 ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    {uploading ? 'Uploading...' : 'Publish Panel'}
                   </button>
+                  {uploading && <span className="text-violet-400 font-bold animate-pulse">Please wait while files upload...</span>}
                 </div>
               </form>
             </div>
