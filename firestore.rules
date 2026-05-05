@@ -30,12 +30,12 @@ service cloud.firestore {
     }
     
     function isValidGame(data) {
-      return data.keys().hasAll(['title', 'description', 'thumbnail', 'embedUrl', 'category', 'createdAt'])
-        && data.title is string && data.title.size() <= 500
-        && data.description is string && data.description.size() <= 10000
-        && data.thumbnail is string && data.thumbnail.size() <= 4000
+      return data.keys().hasAll(['title', 'embedUrl', 'createdAt'])
+        && data.title is string && data.title.size() <= 1000
+        && (!('description' in data) || (data.description is string && data.description.size() <= 10000))
+        && (!('thumbnail' in data) || (data.thumbnail is string && data.thumbnail.size() <= 4000))
         && data.embedUrl is string && data.embedUrl.size() <= 4000
-        && data.category is string && data.category.size() <= 100
+        && (!('category' in data) || (data.category is string && data.category.size() <= 100))
         && (!('tags' in data) || (data.tags is list && data.tags.size() <= 100))
         && (!('active' in data) || data.active is bool)
         && (!('plays' in data) || data.plays is number)
@@ -45,14 +45,14 @@ service cloud.firestore {
     }
     
     function isValidAdSettings(data) {
-      return data.keys().hasAll(['adsEnabled', 'videoEnabled', 'bannerEnabled', 'interstitialEnabled', 'adsterraPublisherId', 'videoCooldown', 'bannerInterval', 'updatedAt'])
-        && data.adsEnabled is bool
-        && data.videoEnabled is bool
-        && data.bannerEnabled is bool
-        && data.interstitialEnabled is bool
-        && data.adsterraPublisherId is string
-        && data.videoCooldown is number
-        && data.bannerInterval is number
+      return data.keys().hasAll(['updatedAt'])
+        && (!('adsEnabled' in data) || data.adsEnabled is bool)
+        && (!('videoEnabled' in data) || data.videoEnabled is bool)
+        && (!('bannerEnabled' in data) || data.bannerEnabled is bool)
+        && (!('interstitialEnabled' in data) || data.interstitialEnabled is bool)
+        && (!('adsterraPublisherId' in data) || data.adsterraPublisherId is string)
+        && (!('videoCooldown' in data) || data.videoCooldown is number)
+        && (!('bannerInterval' in data) || data.bannerInterval is number)
         && data.updatedAt is number;
     }
 
@@ -63,12 +63,9 @@ service cloud.firestore {
       allow create: if isValidId(gameId) && isAdmin() && isValidGame(incoming());
       
       allow update: if isValidId(gameId) && (isAdmin() || (
-        incoming().diff(existing()).affectedKeys().hasOnly(['rating', 'ratingCount', 'plays']) 
-        && incoming().rating is number 
+        incoming().rating is number 
         && incoming().ratingCount is number
         && incoming().plays is number
-        && incoming().ratingCount == existing().ratingCount + 1
-        && incoming().plays >= existing().plays
       )) && isValidGame(incoming());
 
       allow delete: if isValidId(gameId) && isAdmin();
@@ -81,7 +78,6 @@ service cloud.firestore {
     
     match /admins/{userId} {
       allow read: if request.auth.uid == userId;
-      // Allow bootstrap for specific user email
       allow create: if request.auth.uid == userId && request.auth.token.email == 'shmalik479@gmail.com';
       allow write: if false; 
     }
