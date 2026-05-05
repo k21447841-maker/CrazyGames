@@ -117,7 +117,18 @@ export const api = {
   getAdSettings: async () => {
     try {
       const snap = await getDoc(doc(db, 'settings', 'ads'));
-      if (snap.exists()) return snap.data();
+      if (snap.exists()) {
+        const data = snap.data();
+        return { 
+          adsEnabled: data.adsEnabled ?? true,
+          bannerEnabled: data.bannerEnabled ?? true, 
+          interstitialEnabled: data.interstitialEnabled ?? true,
+          videoEnabled: data.videoEnabled ?? true, 
+          adsterraPublisherId: data.adsterraPublisherId || 'd90a807cd13f1e7f8e4dfe49616d217e',
+          videoCooldown: data.videoCooldown ?? 30, 
+          bannerInterval: data.bannerInterval ?? 60 
+        };
+      }
       return { 
         adsEnabled: true,
         bannerEnabled: true, 
