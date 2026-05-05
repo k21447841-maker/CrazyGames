@@ -7,6 +7,8 @@ export interface AdSettingsData {
   interstitialEnabled: boolean;
   videoEnabled: boolean;
   adsterraPublisherId: string;
+  videoCooldown: number;
+  bannerInterval: number;
 }
 
 interface AdContextType {
@@ -21,7 +23,9 @@ const defaultSettings = {
   bannerEnabled: false,
   interstitialEnabled: false,
   videoEnabled: false,
-  adsterraPublisherId: ''
+  adsterraPublisherId: '',
+  videoCooldown: 30,
+  bannerInterval: 60
 };
 
 export function AdProvider({ children }: { children: ReactNode }) {

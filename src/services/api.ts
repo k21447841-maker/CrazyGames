@@ -103,6 +103,9 @@ export const api = {
       return { token: cred.user.uid, user: { id: cred.user.uid, email: cred.user.email, role: 'admin' } };
     } catch (err: any) {
       console.error(err);
+      if (err?.code === 'auth/unauthorized-domain') {
+        throw new Error('Unauthorized Domain: Please add this website domain to your Firebase Console under Authentication > Settings > Authorized Domains.');
+      }
       if (err?.message?.includes('popup')) {
         throw new Error('Login blocked by browser. Please click the "Open in new tab" icon (top right) to login.');
       }
@@ -115,7 +118,15 @@ export const api = {
     try {
       const snap = await getDoc(doc(db, 'settings', 'ads'));
       if (snap.exists()) return snap.data();
-      return { videoEnabled: true, bannerEnabled: true, videoCooldown: 30, bannerInterval: 60 };
+      return { 
+        adsEnabled: false,
+        bannerEnabled: false, 
+        interstitialEnabled: false,
+        videoEnabled: false, 
+        adsterraPublisherId: '',
+        videoCooldown: 30, 
+        bannerInterval: 60 
+      };
     } catch (error) {
       return handleFirestoreError(error, OperationType.GET, 'settings/ads');
     }

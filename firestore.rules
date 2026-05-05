@@ -50,10 +50,10 @@ service cloud.firestore {
     }
 
     match /games/{gameId} {
-      allow read: if isValidId(gameId);
+      allow get: if isValidId(gameId);
       allow list: if true; // Publicly readable list of games
       
-      allow create: if isValidId(gameId) && isAdmin() && isValidGame(incoming()) && incoming().createdAt == request.time.toMillis();
+      allow create: if isValidId(gameId) && isAdmin() && isValidGame(incoming());
       
       allow update: if isValidId(gameId) && (isAdmin() || (
         incoming().diff(existing()).affectedKeys().hasOnly(['rating', 'ratingCount', 'plays']) 
@@ -69,7 +69,7 @@ service cloud.firestore {
     
     match /settings/ads {
       allow read: if true;
-      allow write: if isAdmin() && isValidAdSettings(incoming()) && incoming().updatedAt == request.time.toMillis();
+      allow write: if isAdmin() && isValidAdSettings(incoming());
     }
     
     match /admins/{userId} {

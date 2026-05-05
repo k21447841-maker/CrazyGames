@@ -12,6 +12,7 @@ export function AdminDashboard() {
   const { settings, reloadSettings } = useAds();
   const [games, setGames] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'games' | 'ads' | 'add'>('games');
   const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set());
 
@@ -34,11 +35,18 @@ export function AdminDashboard() {
 
   const fetchData = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await api.getAdminGames();
       setGames(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      let errMsg = err?.message || 'Failed to fetch dashboard data.';
+      try {
+        const parsed = JSON.parse(errMsg);
+        errMsg = parsed.error || errMsg;
+      } catch (e) {}
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -82,35 +90,56 @@ export function AdminDashboard() {
 
   const handleAddGame = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     try {
-      await api.createGame({ ...formData, tags: formData.tags.split(',').map(s => s.trim()) });
+      await api.createGame({ ...formData, tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean) });
       setFormData({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Action', tags: '' });
       setActiveTab('games');
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      let errMsg = err?.message || 'Failed to add game.';
+      try {
+        const parsed = JSON.parse(errMsg);
+        errMsg = parsed.error || errMsg;
+      } catch (e) {}
+      setError(errMsg);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('Delete this game?')) {
+      setError(null);
       try {
         await api.deleteGame(id);
         fetchData();
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
+        let errMsg = err?.message || 'Failed to delete game.';
+        try {
+          const parsed = JSON.parse(errMsg);
+          errMsg = parsed.error || errMsg;
+        } catch (e) {}
+        setError(errMsg);
       }
     }
   };
 
   const handleSaveAdSettings = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     try {
       await api.updateAdSettings(adForm);
       await reloadSettings();
       alert('Ad settings updated successfully.');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      let errMsg = err?.message || 'Failed to update settings.';
+      try {
+        const parsed = JSON.parse(errMsg);
+        errMsg = parsed.error || errMsg;
+      } catch (e) {}
+      setError(errMsg);
     }
   };
 
@@ -153,8 +182,14 @@ export function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-8 overflow-y-auto relative">
+        {error && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-rose-500 text-white px-6 py-3 rounded-xl shadow-2xl font-bold border border-rose-400/50 flex items-center space-x-3 max-w-2xl">
+            <Settings className="w-5 h-5 opacity-50" />
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="ml-4 hover:opacity-75 bg-rose-600 px-2 pl-3 py-1 pb-1.5 rounded-lg text-sm">×</button>
+          </div>
+        )}
         <div className="max-w-4xl mx-auto">
           {activeTab === 'games' && (
             <div>
