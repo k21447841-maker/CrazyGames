@@ -335,12 +335,12 @@ export function AdminDashboard() {
                   </div>
                   
                   <div className="pt-4">
-                    <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide">Adsterra Publisher ID</label>
+                    <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide">Adsterra Key (Banner placement ID)</label>
                     <input 
                       type="text" 
                       value={adForm.adsterraPublisherId || ''} 
                       onChange={e => setAdForm({...adForm, adsterraPublisherId: e.target.value})} 
-                      placeholder="e.g. 123456" 
+                      placeholder="e.g. abc123def456" 
                       className="w-full max-w-md bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" 
                     />
                   </div>

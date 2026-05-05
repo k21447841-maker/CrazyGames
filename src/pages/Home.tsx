@@ -85,13 +85,28 @@ export function Home() {
           <Loading />
         ) : filteredGames.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredGames.map(game => (
-              <GameCard key={game._id} game={game} />
+            {filteredGames.map((game, index) => (
+              <React.Fragment key={game._id}>
+                <GameCard game={game} />
+                {/* Insert an In-Content Ad after every 8 games */}
+                {(index + 1) % 8 === 0 && (
+                  <div className="col-span-full py-4">
+                    <AdBanner />
+                  </div>
+                )}
+              </React.Fragment>
             ))}
           </div>
         ) : (
           <div className="text-center py-20 text-slate-500 border border-slate-800 rounded-3xl bg-slate-900/50">
             <p className="text-lg font-medium">No games found matching your criteria.</p>
+          </div>
+        )}
+
+        {/* Footer Ad */}
+        {!loading && (
+          <div className="mt-12 pt-8 border-t border-slate-800/50">
+            <AdBanner />
           </div>
         )}
       </main>

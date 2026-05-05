@@ -15,39 +15,53 @@ export function AdBanner() {
     }
 
     if (bannerRef.current && bannerRef.current.innerHTML === '') {
-      // Create script tag dynamically
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = `//pl${settings.adsterraPublisherId}.adsterra.com/${settings.adsterraPublisherId}.js`;
-      script.async = true;
-      
-      // We append but normally Adsterra scripts do document.write which is blocked in async.
-      // For this demo, we mock the banner logic or allow it to execute.
-      bannerRef.current.appendChild(script);
+      const container = document.createElement('div');
+      container.className = "flex flex-col items-center justify-center w-full my-4 relative";
 
-      // Create a visual placeholder when ads are enabled but real ads are blocked by ad-blocker
+      // Placeholder fallback for Adblockers / Dev Mode
       const placeholder = document.createElement('div');
-      placeholder.className = "w-full max-w-4xl h-24 bg-slate-900 border border-dashed border-slate-700 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden group";
+      placeholder.className = "w-full max-w-[728px] h-[90px] bg-slate-900 border border-dashed border-slate-700 rounded-lg flex flex-col items-center justify-center absolute -z-10";
       placeholder.innerHTML = `
-        <div class="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-transparent"></div>
-        <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Sponsored Advertisement</span>
-        <p class="text-slate-400 text-sm font-medium">Upgrade to Premium for <span class="text-violet-400 font-bold tracking-tight">Ad-Free</span> gaming experience</p>
-        <div class="absolute top-2 right-2 flex gap-1">
-           <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
-           <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
-           <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
-        </div>
+        <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Advertisement</span>
+        <p class="text-slate-500 text-xs font-medium">Your Adsterra Banner Will Appear Here</p>
       `;
-      // We're mimicking the provided html for ad banners
-      bannerRef.current.appendChild(placeholder);
+      container.appendChild(placeholder);
+
+      // Adsterra uses document.write which breaks React SPAs.
+      // The safest way to embed standard Adsterra banners in a React app is via an iframe srcdoc.
+      const iframe = document.createElement('iframe');
+      iframe.width = "728";
+      iframe.height = "90";
+      iframe.style.border = "none";
+      iframe.style.overflow = "hidden";
+      iframe.scrolling = "no";
+      iframe.srcdoc = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; }</style>
+          </head>
+          <body>
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '${settings.adsterraPublisherId}',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/${settings.adsterraPublisherId}/invoke.js"></script>
+          </body>
+        </html>
+      `;
+      
+      container.appendChild(iframe);
+      bannerRef.current.appendChild(container);
     }
   }, [settings]);
 
   if (!settings.adsEnabled || !settings.bannerEnabled) return null;
 
-  return (
-    <div className="w-full flex justify-center my-4 overflow-hidden" ref={bannerRef}>
-      {/* Adsterra script will inject content here */}
-    </div>
-  );
+  return <div className="w-full flex justify-center overflow-hidden" ref={bannerRef} />;
 }
