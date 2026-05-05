@@ -37,8 +37,16 @@ export const api = {
       const newDocRef = doc(collection(db, 'games'));
       const newGame = {
         ...data,
+        active: true,
+        plays: 0,
+        rating: 5.0,
+        ratingCount: 1,
         createdAt: Date.now()
       };
+      // Format tags as an array if present
+      if (typeof newGame.tags === 'string') {
+        newGame.tags = newGame.tags.split(',').map((t: string) => t.trim()).filter(Boolean);
+      }
       await setDoc(newDocRef, newGame);
       return { _id: newDocRef.id, id: newDocRef.id, ...newGame };
     } catch (error) {

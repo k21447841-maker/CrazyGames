@@ -26,17 +26,17 @@ service cloud.firestore {
     }
     
     function isValidGame(data) {
-      return data.keys().hasAll(['title', 'description', 'thumbnail', 'embedUrl', 'category', 'active', 'plays', 'rating', 'ratingCount', 'createdAt'])
+      return data.keys().hasAll(['title', 'description', 'thumbnail', 'embedUrl', 'category', 'createdAt'])
         && data.title is string && data.title.size() <= 200
         && data.description is string && data.description.size() <= 2000
         && data.thumbnail is string && data.thumbnail.size() <= 1000
         && data.embedUrl is string && data.embedUrl.size() <= 1000
         && data.category is string && data.category.size() <= 100
         && (!('tags' in data) || (data.tags is list && data.tags.size() <= 50))
-        && data.active is bool
-        && data.plays is number
-        && data.rating is number
-        && data.ratingCount is number
+        && (!('active' in data) || data.active is bool)
+        && (!('plays' in data) || data.plays is number)
+        && (!('rating' in data) || data.rating is number)
+        && (!('ratingCount' in data) || data.ratingCount is number)
         && data.createdAt is number;
     }
     
