@@ -85,7 +85,7 @@ export function GamePlay() {
             className="flex items-center text-slate-400 hover:text-white transition-all duration-300 ease-in-out font-medium text-sm"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Panels
+            Back to Games
           </button>
           
           <div className="flex items-center gap-4">
@@ -108,8 +108,20 @@ export function GamePlay() {
             </button>
           </div>
           
-          <div className="relative w-full aspect-video bg-black flex items-center justify-center p-8 bg-slate-950/50">
-            <img src={game.thumbnail} alt={game.title} className="max-h-full max-w-full rounded-2xl shadow-2xl object-contain drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]" />
+          <div className="relative w-full aspect-video bg-black flex items-center justify-center p-0 bg-slate-950/50">
+            {game.embedUrl && !game.embedUrl.includes('.apk') && !game.embedUrl.includes('.zip') && !game.embedUrl.includes('firebasestorage.googleapis.com') ? (
+              <iframe
+                ref={iframeRef}
+                src={game.embedUrl}
+                title={game.title}
+                className="w-full h-full border-0"
+                allowFullScreen
+                scrolling="no"
+                allow="autoplay; fullscreen; gamepad; focus-without-user-activation *; monetization; x-domain"
+              ></iframe>
+            ) : (
+              <img src={game.thumbnail} alt={game.title} className="max-h-full max-w-full rounded-2xl shadow-2xl object-contain drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]" />
+            )}
           </div>
           
           <div className="p-6 md:p-8 bg-gradient-to-b from-slate-900 to-slate-950">
@@ -120,7 +132,7 @@ export function GamePlay() {
                     {game.category}
                   </span>
                   <span className="bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1 rounded-lg text-sm font-semibold">
-                    {game.plays} Downloads
+                    {game.plays} Plays
                   </span>
                   <div className="flex items-center text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 px-3 py-1 rounded-lg font-bold text-sm">
                     <Star className="w-4 h-4 fill-current mr-1" />
@@ -128,7 +140,7 @@ export function GamePlay() {
                     <span className="text-slate-400 font-medium text-xs ml-1">({game.ratingCount || 0})</span>
                   </div>
                 </div>
-                <h2 className="text-xl font-bold text-white mb-2">Panel Description</h2>
+                <h2 className="text-xl font-bold text-white mb-2">Game Description</h2>
                 <p className="text-slate-400 leading-relaxed font-medium">
                   {game.description || "No description provided."}
                 </p>
@@ -141,11 +153,11 @@ export function GamePlay() {
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-xl font-black uppercase tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-all duration-300 ease-in-out md:min-w-[250px]"
                 >
-                  <Maximize className="w-5 h-5" /> Download Panel
+                  <Maximize className="w-5 h-5" /> Play / Download Game
                 </a>
                 
                 <div className="p-6 bg-slate-800/30 border border-slate-700/50 rounded-xl space-y-4">
-                  <h3 className="font-bold text-sm text-slate-300 uppercase tracking-widest text-center">Rate this Panel</h3>
+                  <h3 className="font-bold text-sm text-slate-300 uppercase tracking-widest text-center">Rate this Game</h3>
                   <div className="flex items-center justify-center gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
