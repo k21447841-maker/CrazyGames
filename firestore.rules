@@ -41,9 +41,12 @@ service cloud.firestore {
     }
     
     function isValidAdSettings(data) {
-      return data.keys().hasAll(['videoEnabled', 'bannerEnabled', 'videoCooldown', 'bannerInterval', 'updatedAt'])
+      return data.keys().hasAll(['adsEnabled', 'videoEnabled', 'bannerEnabled', 'interstitialEnabled', 'adsterraPublisherId', 'videoCooldown', 'bannerInterval', 'updatedAt'])
+        && data.adsEnabled is bool
         && data.videoEnabled is bool
         && data.bannerEnabled is bool
+        && data.interstitialEnabled is bool
+        && data.adsterraPublisherId is string
         && data.videoCooldown is number
         && data.bannerInterval is number
         && data.updatedAt is number;
