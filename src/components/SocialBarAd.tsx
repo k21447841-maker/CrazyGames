@@ -1,20 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAds } from '../context/AdContext';
-import { useLocation } from 'react-router-dom';
 
 export function SocialBarAd() {
   const { settings } = useAds();
-  const location = useLocation();
-  const [shouldShowAd, setShouldShowAd] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    // Check if the user has played at least 1 game
-    const gamesPlayed = parseInt(sessionStorage.getItem('gamesPlayed') || '0', 10);
-    setShouldShowAd(gamesPlayed >= 1);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    if (!settings.adsEnabled || !shouldShowAd) return;
+    if (!settings.adsEnabled || !visible) return;
 
     // Check if script already exists to avoid duplicates
     const scriptId = 'adsterra-social-bar';
@@ -27,14 +19,31 @@ export function SocialBarAd() {
     
     document.body.appendChild(script);
 
+    // Hide the ad after 10 seconds
+    const timer = setTimeout(() => {
+      // Find all newly added elements from adsterra and hide them
+      // Removing the script
+      const el = document.getElementById(scriptId);
+      if (el) el.remove();
+      
+      // Since it's hard to know exactly what adsterra injects, 
+      // we can try to hide common ad wrapper selectors
+      const adWrappers = document.querySelectorAll('div[style*="z-index"][style*="fixed"]');
+      adWrappers.forEach((el) => {
+        (el as HTMLElement).style.display = 'none';
+      });
+
+      setVisible(false);
+    }, 10000);
+
     return () => {
-      // Removing the script tag might not remove the ad UI, but it cleans up the tag.
+      clearTimeout(timer);
       const el = document.getElementById(scriptId);
       if (el) {
         el.remove();
       }
     };
-  }, [settings.adsEnabled, shouldShowAd]);
+  }, [settings.adsEnabled, visible]);
 
   return null;
 }

@@ -119,11 +119,11 @@ export const api = {
       const snap = await getDoc(doc(db, 'settings', 'ads'));
       if (snap.exists()) return snap.data();
       return { 
-        adsEnabled: false,
-        bannerEnabled: false, 
-        interstitialEnabled: false,
-        videoEnabled: false, 
-        adsterraPublisherId: '',
+        adsEnabled: true,
+        bannerEnabled: true, 
+        interstitialEnabled: true,
+        videoEnabled: true, 
+        adsterraPublisherId: 'd90a807cd13f1e7f8e4dfe49616d217e',
         videoCooldown: 30, 
         bannerInterval: 60 
       };
