@@ -99,13 +99,13 @@ export function Home() {
         {loading ? (
           <Loading />
         ) : filteredGames.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
             {filteredGames.map((game, index) => (
               <React.Fragment key={game._id}>
                 <GameCard game={game} />
-                {/* Insert an In-Content Ad after every 8 games */}
-                {(index + 1) % 8 === 0 && (
-                  <div className="col-span-full py-4">
+                {/* Insert an In-Content Ad after every 12 games */}
+                {(index + 1) % 12 === 0 && (
+                  <div className="col-span-full py-2">
                     <AdBanner />
                   </div>
                 )}
