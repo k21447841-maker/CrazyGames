@@ -14,7 +14,11 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      return isAuthenticated() && (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) || request.auth.token.email == 'shmalik479@gmail.com');
+      return isAuthenticated() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) || 
+        (request.auth.token != null && request.auth.token.email == 'shmalik479@gmail.com') ||
+        (request.auth.token != null && request.auth.token.email_verified == true && request.auth.token.email == 'shmalik479@gmail.com')
+      );
     }
     
     function incoming() {
@@ -27,12 +31,12 @@ service cloud.firestore {
     
     function isValidGame(data) {
       return data.keys().hasAll(['title', 'description', 'thumbnail', 'embedUrl', 'category', 'createdAt'])
-        && data.title is string && data.title.size() <= 200
-        && data.description is string && data.description.size() <= 2000
-        && data.thumbnail is string && data.thumbnail.size() <= 1000
-        && data.embedUrl is string && data.embedUrl.size() <= 1000
+        && data.title is string && data.title.size() <= 500
+        && data.description is string && data.description.size() <= 10000
+        && data.thumbnail is string && data.thumbnail.size() <= 4000
+        && data.embedUrl is string && data.embedUrl.size() <= 4000
         && data.category is string && data.category.size() <= 100
-        && (!('tags' in data) || (data.tags is list && data.tags.size() <= 50))
+        && (!('tags' in data) || (data.tags is list && data.tags.size() <= 100))
         && (!('active' in data) || data.active is bool)
         && (!('plays' in data) || data.plays is number)
         && (!('rating' in data) || data.rating is number)

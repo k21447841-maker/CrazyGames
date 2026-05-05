@@ -284,13 +284,19 @@ export function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide">Thumbnail URL</label>
+                  <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
+                    Thumbnail URL
+                  </label>
+                  <p className="text-xs text-slate-500 mb-2 font-medium">Game ki cover image ya icon ka URL/Link yahan dalein. (Aap online kisi bhi image ka link yahan daal sakte hain).</p>
                   <input type="url" required value={formData.thumbnail} onChange={e => setFormData({...formData, thumbnail: e.target.value})} placeholder="https://..." className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide">Embed Code / Iframe URL</label>
-                  <input type="text" required value={formData.embedUrl} onChange={e => setFormData({...formData, embedUrl: e.target.value})} placeholder="https://..." className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
+                  <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
+                    Embed Code / Iframe URL
+                  </label>
+                  <p className="text-xs text-slate-500 mb-2 font-medium">Yeh sabse main cheez hai. Yahan game ko play karne wala link dalein. Aap HTML5 games websites (jaise GameDistribution, PacoGames) se embed link copy kar sakte hain.</p>
+                  <input type="text" required value={formData.embedUrl} onChange={e => setFormData({...formData, embedUrl: e.target.value})} placeholder="https://html5.gamedistribution.com/..." className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
                 </div>
 
                 <div>
