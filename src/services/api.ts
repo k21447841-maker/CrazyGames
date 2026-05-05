@@ -101,9 +101,12 @@ export const api = {
       await ensureAdmin(cred.user);
       
       return { token: cred.user.uid, user: { id: cred.user.uid, email: cred.user.email, role: 'admin' } };
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      throw new Error('Google Login Failed');
+      if (err?.message?.includes('popup')) {
+        throw new Error('Login blocked by browser. Please click the "Open in new tab" icon (top right) to login.');
+      }
+      throw new Error(err?.message || 'Google Login Failed');
     }
   },
   
