@@ -323,21 +323,27 @@ export function AdminDashboard() {
                   <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
                     Thumbnail Image
                   </label>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Upload an image file OR paste a URL.</p>
+                  <p className="text-xs text-slate-500 mb-2 font-medium">Upload an image file for the thumbnail.</p>
                   <div className="flex gap-4">
-                    <input type="file" accept="image/*" onChange={e => { setThumbFile(e.target.files?.[0] || null); setFormData({...formData, thumbnail: ''}); }} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-violet-600 file:text-white hover:file:bg-violet-500" />
-                    <input type="url" required={!thumbFile} disabled={!!thumbFile} value={formData.thumbnail} onChange={e => setFormData({...formData, thumbnail: e.target.value})} placeholder="Or paste https://..." className={`w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow ${thumbFile ? 'opacity-50' : ''}`} />
+                    <input type="file" required accept="image/*" onChange={e => { setThumbFile(e.target.files?.[0] || null); }} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-violet-600 file:text-white hover:file:bg-violet-500" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
-                    Panel Source (File OR Download URL)
+                  <label className="block text-sm font-bold text-slate-400 mb-4 uppercase tracking-wide">
+                    Panel Source Options
                   </label>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Upload a <b>.zip / .apk</b> file for your panel, OR paste a Download Link (e.g. from Google Drive).</p>
-                  <div className="flex gap-4 flex-col sm:flex-row">
-                    <input type="file" accept=".zip,.apk,.rar,.txt" onChange={e => { setGameFile(e.target.files?.[0] || null); setFormData({...formData, embedUrl: ''}); }} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-violet-600 file:text-white hover:file:bg-violet-500" />
-                    <input type="text" required={!gameFile} disabled={!!gameFile} value={formData.embedUrl} onChange={e => setFormData({...formData, embedUrl: e.target.value})} placeholder="Or paste https://..." className={`w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow ${gameFile ? 'opacity-50' : ''}`} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-slate-950/50 rounded-xl border border-slate-800">
+                    <div>
+                      <p className="text-sm font-bold text-white mb-2">Option 1: Upload Panel File</p>
+                      <p className="text-xs text-slate-500 mb-3">Upload a .zip or .apk file directly.</p>
+                      <input type="file" accept=".zip,.apk,.rar,.txt" onChange={e => { setGameFile(e.target.files?.[0] || null); setFormData({...formData, embedUrl: ''}); }} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-violet-600 file:text-white hover:file:bg-violet-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white mb-2">Option 2: Provide Download Link</p>
+                      <p className="text-xs text-slate-500 mb-3">Paste a link (e.g. MediaFire, Drive).</p>
+                      <input type="text" required={!gameFile} disabled={!!gameFile} value={formData.embedUrl} onChange={e => setFormData({...formData, embedUrl: e.target.value})} placeholder="https://..." className={`w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow ${gameFile ? 'opacity-50' : ''}`} />
+                    </div>
                   </div>
                 </div>
 
