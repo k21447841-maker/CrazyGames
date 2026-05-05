@@ -12,6 +12,7 @@ import { Home } from './pages/Home';
 import { GamePlay } from './pages/GamePlay';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { SocialBarAd } from './components/SocialBarAd';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
       <AuthProvider>
         <AdProvider>
           <div className="flex flex-col min-h-screen">
+            <SocialBarAd />
             <Navbar />
             <Routes>
               <Route path="/" element={<Home />} />

@@ -30,6 +30,10 @@ export function GamePlay() {
         if (storedRating) {
           setUserRating(parseInt(storedRating, 10));
         }
+        
+        // Tracking games played for Social Bar display logic
+        const playedCount = parseInt(sessionStorage.getItem('gamesPlayed') || '0', 10);
+        sessionStorage.setItem('gamesPlayed', (playedCount + 1).toString());
       }).catch(err => {
         console.error(err);
         setLoading(false);

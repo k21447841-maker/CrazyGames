@@ -4,7 +4,6 @@ import { GameCard } from '../components/GameCard';
 import { Loading } from '../components/ui/Loading';
 import { Search } from 'lucide-react';
 import { AdBanner } from '../components/AdBanner';
-import { NativeAdBanner } from '../components/NativeAdBanner';
 
 export function Home() {
   const [games, setGames] = useState<any[]>([]);
@@ -92,7 +91,7 @@ export function Home() {
                 {/* Insert an In-Content Ad after every 8 games */}
                 {(index + 1) % 8 === 0 && (
                   <div className="col-span-full py-4">
-                    <NativeAdBanner />
+                    <AdBanner />
                   </div>
                 )}
               </React.Fragment>
