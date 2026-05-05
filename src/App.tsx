@@ -12,6 +12,7 @@ import { Home } from './pages/Home';
 import { GamePlay } from './pages/GamePlay';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { Store } from './pages/Store';
 import { SocialBarAd } from './components/SocialBarAd';
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/game/:id" element={<GamePlay />} />
+              <Route path="/store" element={<Store />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminDashboard />} />
             </Routes>

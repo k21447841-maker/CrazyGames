@@ -31,14 +31,15 @@ export function Navbar() {
              <Link to="/?category=Racing" className="text-sm font-bold text-slate-300 hover:text-white transition-colors">Racing</Link>
              <Link to="/?category=Shooting" className="text-sm font-bold text-slate-300 hover:text-white transition-colors">Shooting</Link>
              <Link to="/?category=Puzzle" className="text-sm font-bold text-slate-300 hover:text-white transition-colors">Puzzle</Link>
+             <Link to="/store" className="text-sm font-bold text-yellow-400 hover:text-yellow-300 transition-colors bg-yellow-400/10 px-3 py-1 rounded-full border border-yellow-400/20">Store</Link>
           </div>
         </div>
 
         <div className="flex items-center gap-4 mt-4 sm:mt-0">
-          <div className="hidden sm:flex items-center gap-2 bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-lg shadow-inner shadow-black/20">
-            <Coins className="w-4 h-4 text-yellow-500" />
+          <Link to="/store" className="hidden sm:flex items-center gap-2 bg-slate-900/80 border border-slate-800 hover:border-yellow-500/50 px-3 py-1.5 rounded-lg shadow-inner shadow-black/20 group transition-all">
+            <Coins className="w-4 h-4 text-yellow-500 group-hover:scale-110 transition-transform" />
             <span className="font-bold text-white text-sm">{tokens}</span>
-          </div>
+          </Link>
 
           {user ? (
             <Link to="/admin" className="flex items-center gap-2 px-4 py-2 rounded-full border border-slate-700 hover:bg-slate-800 transition-all duration-300 ease-in-out text-sm font-medium text-slate-300 hover:text-white">
@@ -55,6 +56,7 @@ export function Navbar() {
         {/* Mobile menu scroll */}
         <div className="flex items-center gap-4 mt-3 overflow-x-auto md:hidden pb-2 no-scrollbar">
              <Link to="/" className="text-sm font-bold text-violet-400 whitespace-nowrap">Home</Link>
+             <Link to="/store" className="text-sm font-bold text-yellow-400 whitespace-nowrap bg-yellow-400/10 px-3 py-1 rounded-full border border-yellow-400/20">Store</Link>
              <Link to="/?category=Action" className="text-sm font-bold text-slate-300 hover:text-white transition-colors whitespace-nowrap">Action</Link>
              <Link to="/?category=Racing" className="text-sm font-bold text-slate-300 hover:text-white transition-colors whitespace-nowrap">Racing</Link>
              <Link to="/?category=Shooting" className="text-sm font-bold text-slate-300 hover:text-white transition-colors whitespace-nowrap">Shooting</Link>
