@@ -35,6 +35,16 @@ async function startServer() {
       appType: 'spa',
     });
     app.use(vite.middlewares);
+    
+    // Explicit SPA fallback for development just in case
+    app.use('*', (req, res, next) => {
+      if (req.method === 'GET' && req.headers.accept?.includes('text/html')) {
+        req.url = '/index.html';
+        vite.middlewares(req, res, next);
+      } else {
+        next();
+      }
+    });
   } else {
     // Production serving
     const distPath = path.join(process.cwd(), 'dist');
