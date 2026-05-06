@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Neon Runner</title>
+<style>
+body,html{margin:0;padding:0;width:100%;height:100%;background:#0a0a2a;overflow:hidden;font-family:sans-serif;touch-action:none;}
+canvas{display:block;}
+.ui{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;justify-content:center;align-items:center;background:rgba(10,10,42,0.8);}
+.hud{position:absolute;top:20px;left:20px;color:#0ff;font-size:24px;font-weight:bold;text-shadow:0 0 10px #0ff;}
+.active{display:flex;}
+h1{color:#f0f;font-size:48px;text-transform:uppercase;text-shadow:0 0 20px #f0f;margin-bottom:10px;}
+button{background:transparent;border:2px solid #0ff;color:#0ff;padding:15px 40px;font-size:24px;border-radius:30px;cursor:pointer;text-transform:uppercase;font-weight:bold;box-shadow:0 0 15px rgba(0,255,255,0.5) inset;transition:0.2s;}
+button:active{transform:scale(0.95);background:#0ff;color:#0a0a2a;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">Score: <span id="s">0</span> | Best: <span id="bs">0</span></div>
+<div id="start" class="ui active"><h1>Neon Runner</h1><button onclick="st()">Play</button></div>
+<div id="over" class="ui"><h1>Game Over</h1><h2 style="color:#fff">Score: <span id="fs">0</span></h2><button onclick="st()">Restart</button></div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let w,h,ply,obs,sc=0,bs=localStorage.getItem('rn_bs')||0,stt=0,sp=5,tm=0;
+document.getElementById('bs').innerText=bs;
+function rs(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}
+window.addEventListener('resize',rs);rs();
+const AC=window.AudioContext||window.webkitAudioContext;const ax=new AC();
+function pS(f,t,v=0.1){if(ax.state==='suspended')ax.resume();let o=ax.createOscillator(),g=ax.createGain();o.type='square';o.frequency.setValueAtTime(f,ax.currentTime);o.frequency.exponentialRampToValueAtTime(t,ax.currentTime+0.1);g.gain.setValueAtTime(v,ax.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ax.currentTime+0.1);o.connect(g);g.connect(ax.destination);o.start();o.stop(ax.currentTime+0.1);}
+function st(){stt=1;sc=0;sp=6;obs=[];ply={x:50,y:h-100,vy:0,j:0};document.getElementById('start').className='ui';document.getElementById('over').className='ui';document.getElementById('s').innerText=0;lp();}
+function ov(){stt=0;if(sc>bs){bs=sc;localStorage.setItem('rn_bs',bs);document.getElementById('bs').innerText=bs;}document.getElementById('fs').innerText=Math.floor(sc);document.getElementById('over').className='ui active';}
+function jp(){if(stt===1&&ply.j<2){ply.vy=-12;ply.j++;pS(300,600);}}
+window.addEventListener('keydown',e=>{if(e.code==='Space')jp();});
+window.addEventListener('touchstart',jp);window.addEventListener('mousedown',jp);
+function up(){
+if(stt!==1)return;sc+=0.1;sp+=0.002;document.getElementById('s').innerText=Math.floor(sc);
+ply.vy+=0.6;ply.y+=ply.vy;if(ply.y>h-100){ply.y=h-100;ply.vy=0;ply.j=0;}
+if(Math.random()<0.02)obs.push({x:w,w:30,h:40+Math.random()*40});
+for(let i=obs.length-1;i>=0;i--){
+let o=obs[i];o.x-=sp;
+if(ply.x<o.x+o.w&&ply.x+40>o.x&&ply.y<h-100+o.h&&ply.y+40>h-100-o.h){pS(100,40,0.3);ov();}
+if(o.x+o.w<0)obs.splice(i,1);
+}
+}
+function dr(){
+ctx.fillStyle='#0a0a2a';ctx.fillRect(0,0,w,h);
+ctx.fillStyle='#0ff';ctx.fillRect(0,h-60,w,4);
+ctx.shadowBlur=15;ctx.shadowColor='#f0f';ctx.fillStyle='#f0f';ctx.fillRect(ply.x,ply.y,40,40);
+ctx.shadowColor='#0ff';ctx.fillStyle='#0ff';
+obs.forEach(o=>ctx.fillRect(o.x,h-60-o.h,o.w,o.h));ctx.shadowBlur=0;
+}
+function lp(){up();dr();if(stt===1)requestAnimationFrame(lp);}
+dr();
+</script></body></html>

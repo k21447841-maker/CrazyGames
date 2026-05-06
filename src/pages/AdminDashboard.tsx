@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useAds } from '../context/AdContext';
-import { LogOut, Plus, Trash2, Settings, ListVideo, ToggleLeft, ToggleRight, Gamepad2 } from 'lucide-react';
+import { LogOut, Plus, Trash2, Settings, ListVideo, ToggleLeft, ToggleRight, Gamepad2, Database } from 'lucide-react';
+import { generateMoreGames } from '../seedData';
 import { Loading } from '../components/ui/Loading';
 
 export function AdminDashboard() {
@@ -72,6 +73,24 @@ export function AdminDashboard() {
     } catch (e: any) {
       console.error(e);
       alert("Error deleting games: " + e.message);
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const handleSeedGames = async () => {
+    if(!window.confirm("Seed 5 custom HTML5 games? This will add the games to your database.")) return;
+    setSeeding(true);
+    try {
+      const gamesToSeed = generateMoreGames();
+      for(const g of gamesToSeed) {
+        await api.createGame({ ...g, tags: g.tags });
+      }
+      fetchData();
+      alert("Successfully seeded custom HTML5 games!");
+    } catch (e: any) {
+      console.error(e);
+      alert("Error seeding games: " + e.message);
     } finally {
       setSeeding(false);
     }
@@ -214,6 +233,9 @@ export function AdminDashboard() {
           </button>
           <button onClick={handleResetAllGames} disabled={seeding} className="w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold text-rose-400 hover:bg-rose-900/40 hover:text-rose-300 disabled:opacity-50">
             <Trash2 className="w-5 h-5 mr-3" /> {seeding ? 'Processing...' : 'Delete All Games'}
+          </button>
+          <button onClick={handleSeedGames} disabled={seeding} className="w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold text-emerald-400 hover:bg-emerald-900/40 hover:text-emerald-300 disabled:opacity-50">
+            <Database className="w-5 h-5 mr-3" /> {seeding ? 'Seeding...' : 'Seed 5 Custom Games'}
           </button>
           <button onClick={() => setActiveTab('ads')} className={`w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold ${activeTab === 'ads' ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Settings className="w-5 h-5 mr-3" /> Global Settings
