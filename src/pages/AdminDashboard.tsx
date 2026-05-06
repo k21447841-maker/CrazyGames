@@ -19,7 +19,6 @@ export function AdminDashboard() {
   // Form states
   const [formData, setFormData] = useState({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Action', tags: '' });
   const [thumbFile, setThumbFile] = useState<File | null>(null);
-  const [gameFile, setGameFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [adForm, setAdForm] = useState(settings);
 
@@ -117,14 +116,9 @@ export function AdminDashboard() {
       if (thumbFile) {
         finalThumbnailUrl = await api.uploadFile(thumbFile, 'thumbnails');
       }
-      if (gameFile) {
-        finalEmbedUrl = await api.uploadFile(gameFile, 'source');
-      }
-
       await api.createGame({ ...formData, thumbnail: finalThumbnailUrl, embedUrl: finalEmbedUrl, tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean) });
       setFormData({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Action', tags: '' });
       setThumbFile(null);
-      setGameFile(null);
       setActiveTab('games');
       fetchData();
     } catch (err: any) {
@@ -330,21 +324,11 @@ export function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-400 mb-4 uppercase tracking-wide">
-                    Game Source Options
+                  <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
+                    Game Embed URL
                   </label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-slate-950/50 rounded-xl border border-slate-800">
-                    <div>
-                      <p className="text-sm font-bold text-white mb-2">Option 1: Upload Game File / Game URL</p>
-                      <p className="text-xs text-slate-500 mb-3">Upload a HTML5 Game ZIP or type download link.</p>
-                      <input type="file" accept=".zip,.apk,.rar,.txt" onChange={e => { setGameFile(e.target.files?.[0] || null); setFormData({...formData, embedUrl: ''}); }} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-violet-600 file:text-white hover:file:bg-violet-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-white mb-2">Option 2: Embedded URL</p>
-                      <p className="text-xs text-slate-500 mb-3">Paste an iframe HTML5 embedded link.</p>
-                      <input type="text" required={!gameFile} disabled={!!gameFile} value={formData.embedUrl} onChange={e => setFormData({...formData, embedUrl: e.target.value})} placeholder="https://..." className={`w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow ${gameFile ? 'opacity-50' : ''}`} />
-                    </div>
-                  </div>
+                  <p className="text-xs text-slate-500 mb-2 font-medium">Paste an iframe HTML5 embedded link or download link.</p>
+                  <input type="text" required value={formData.embedUrl} onChange={e => setFormData({...formData, embedUrl: e.target.value})} placeholder="https://..." className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
                 </div>
 
                 <div>
