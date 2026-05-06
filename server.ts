@@ -1,6 +1,7 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
+import fs from 'fs';
 import { connectDB } from './backend/db';
 import gamesRouter from './backend/routes/games';
 import adminRouter from './backend/routes/admin';
@@ -9,7 +10,7 @@ import cors from 'cors';
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   // Middleware
   app.use(express.json());
@@ -37,10 +38,16 @@ async function startServer() {
     app.use(vite.middlewares);
     
     // Explicit SPA fallback for development just in case
-    app.use('*', (req, res, next) => {
-      if (req.method === 'GET' && req.headers.accept?.includes('text/html')) {
-        req.url = '/index.html';
-        vite.middlewares(req, res, next);
+    app.use('*', async (req, res, next) => {
+      if (req.method === 'GET' && !req.originalUrl.startsWith('/api/') && !req.originalUrl.includes('.')) {
+        try {
+          const template = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf-8');
+          const html = await vite.transformIndexHtml(req.originalUrl, template);
+          res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+        } catch (e: any) {
+          vite.ssrFixStacktrace(e);
+          next(e);
+        }
       } else {
         next();
       }
@@ -49,8 +56,12 @@ async function startServer() {
     // Production serving
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    app.use('*', (req, res, next) => {
+      if (req.method === 'GET' && !req.originalUrl.startsWith('/api/') && !req.originalUrl.includes('.')) {
+        res.sendFile(path.join(distPath, 'index.html'));
+      } else {
+         next();
+      }
     });
   }
 
