@@ -96,6 +96,24 @@ export function AdminDashboard() {
     }
   };
 
+  const handleClearAllThumbnails = async () => {
+    if(!window.confirm("WARNING: Are you sure you want to delete ALL thumbnails?")) return;
+    setSeeding(true);
+    try {
+      // Assuming api.updateGame exists and takes (id, data)
+      for (const game of games) {
+        await api.updateGame(game._id, { ...game, thumbnail: "" });
+      }
+      fetchData();
+      alert("All thumbnails have been cleared successfully.");
+    } catch (e: any) {
+      console.error(e);
+      alert("Error clearing thumbnails: " + e.message);
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   const handleToggleSelectAll = () => {
     if (selectedGames.size === games.length) {
       setSelectedGames(new Set());
@@ -236,6 +254,9 @@ export function AdminDashboard() {
           </button>
           <button onClick={handleSeedGames} disabled={seeding} className="w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold text-emerald-400 hover:bg-emerald-900/40 hover:text-emerald-300 disabled:opacity-50">
             <Database className="w-5 h-5 mr-3" /> {seeding ? 'Seeding...' : 'Seed 5 Custom Games'}
+          </button>
+          <button onClick={handleClearAllThumbnails} disabled={seeding} className="w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold text-amber-400 hover:bg-amber-900/40 hover:text-amber-300 disabled:opacity-50">
+            <Trash2 className="w-5 h-5 mr-3" /> {seeding ? 'Clearing...' : 'Clear All Thumbnails'}
           </button>
           <button onClick={() => setActiveTab('ads')} className={`w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold ${activeTab === 'ads' ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Settings className="w-5 h-5 mr-3" /> Global Settings
