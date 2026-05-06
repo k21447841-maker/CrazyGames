@@ -6,8 +6,8 @@ export function AdBanner() {
   const bannerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Only load if ads and banner are enabled, and publisherID exists
-    if (!settings.adsEnabled || !settings.bannerEnabled || !settings.adsterraPublisherId) {
+    // Only load if ads and banner are enabled
+    if (!settings.adsEnabled || !settings.bannerEnabled) {
       if (bannerRef.current) {
          bannerRef.current.innerHTML = '';
       }
@@ -27,36 +27,41 @@ export function AdBanner() {
       `;
       container.appendChild(placeholder);
 
-      // Adsterra uses document.write which breaks React SPAs.
-      // The safest way to embed standard Adsterra banners in a React app is via an iframe srcdoc.
-      const iframe = document.createElement('iframe');
-      iframe.width = "728";
-      iframe.height = "90";
-      iframe.style.border = "none";
-      iframe.style.overflow = "hidden";
-      iframe.scrolling = "no";
-      iframe.srcdoc = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <style>body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; }</style>
-          </head>
-          <body>
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '${settings.adsterraPublisherId}',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/${settings.adsterraPublisherId}/invoke.js"></script>
-          </body>
-        </html>
-      `;
+      // Only add iframe if publisher ID is configured
+      if (settings.adsterraPublisherId) {
+        const iframe = document.createElement('iframe');
+        iframe.width = "728";
+        iframe.height = "90";
+        iframe.style.border = "none";
+        iframe.style.overflow = "hidden";
+        iframe.scrolling = "no";
+        iframe.srcdoc = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; }</style>
+            </head>
+            <body>
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '${settings.adsterraPublisherId}',
+                  'format' : 'iframe',
+                  'height' : 90,
+                  'width' : 728,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="//www.highperformanceformat.com/${settings.adsterraPublisherId}/invoke.js"></script>
+            </body>
+          </html>
+        `;
+        
+        container.appendChild(iframe);
+      } else {
+        // If no publisher ID, make placeholder visible (z-index) so user can see it
+        placeholder.className = "w-full max-w-[728px] h-[90px] bg-slate-900 border border-dashed border-slate-700 rounded-lg flex flex-col items-center justify-center";
+      }
       
-      container.appendChild(iframe);
       bannerRef.current.appendChild(container);
     }
   }, [settings]);
