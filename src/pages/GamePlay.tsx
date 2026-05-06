@@ -120,7 +120,14 @@ export function GamePlay() {
                 allow="autoplay; fullscreen; gamepad; focus-without-user-activation *; monetization; x-domain"
               ></iframe>
             ) : (
-              <img src={game.thumbnail} alt={game.title} className="max-h-full max-w-full rounded-2xl shadow-2xl object-contain drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]" />
+              <img 
+                src={game.thumbnail} 
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=600&auto=format&fit=crop';
+                }}
+                alt={game.title} 
+                className="max-h-full max-w-full rounded-2xl shadow-2xl object-contain drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]" 
+              />
             )}
           </div>
           

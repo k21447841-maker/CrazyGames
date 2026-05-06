@@ -16,6 +16,8 @@ interface GameCardProps {
 }
 
 export function GameCard({ game }: GameCardProps) {
+  const [imgSrc, setImgSrc] = React.useState(game.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=600&auto=format&fit=crop');
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}
@@ -30,7 +32,8 @@ export function GameCard({ game }: GameCardProps) {
           {/* Thumbnail Container */}
           <div className="relative aspect-square overflow-hidden bg-slate-800">
             <img 
-              src={game.thumbnail} 
+              src={imgSrc} 
+              onError={() => setImgSrc('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=600&auto=format&fit=crop')}
               alt={game.title} 
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               loading="lazy"

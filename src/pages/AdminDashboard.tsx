@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useAds } from '../context/AdContext';
-import { LogOut, Plus, Trash2, Settings, ListVideo, ToggleLeft, ToggleRight, Gamepad2 } from 'lucide-react';
+import { LogOut, Plus, Trash2, Settings, ListVideo, ToggleLeft, ToggleRight, Gamepad2, Database } from 'lucide-react';
+import { generateMoreGames } from '../seedData';
 import { Loading } from '../components/ui/Loading';
 
 export function AdminDashboard() {
@@ -19,6 +20,7 @@ export function AdminDashboard() {
   // Form states
   const [formData, setFormData] = useState({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Action', tags: '' });
   const [uploading, setUploading] = useState(false);
+  const [seeding, setSeeding] = useState(false);
   const [adForm, setAdForm] = useState(settings);
 
   useEffect(() => {
@@ -56,6 +58,24 @@ export function AdminDashboard() {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleSeedGames = async () => {
+    if(!window.confirm("Seed 50+ high-end games? This will add a lot of games to your database.")) return;
+    setSeeding(true);
+    try {
+      const gamesToSeed = generateMoreGames();
+      for(const g of gamesToSeed) {
+        await api.createGame({ ...g, tags: g.tags });
+      }
+      fetchData();
+      alert("Successfully seeded games!");
+    } catch (e: any) {
+      console.error(e);
+      alert("Error seeding games: " + e.message);
+    } finally {
+      setSeeding(false);
+    }
   };
 
   const handleToggleSelectAll = () => {
@@ -192,6 +212,9 @@ export function AdminDashboard() {
           </button>
           <button onClick={() => setActiveTab('add')} className={`w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold ${activeTab === 'add' ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Plus className="w-5 h-5 mr-3" /> Add Game
+          </button>
+          <button onClick={handleSeedGames} disabled={seeding} className="w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold text-emerald-400 hover:bg-emerald-900/40 hover:text-emerald-300 disabled:opacity-50">
+            <Database className="w-5 h-5 mr-3" /> {seeding ? 'Seeding...' : 'Seed Games'}
           </button>
           <button onClick={() => setActiveTab('ads')} className={`w-full flex items-center p-3 rounded-xl transition-all duration-300 ease-in-out font-semibold ${activeTab === 'ads' ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Settings className="w-5 h-5 mr-3" /> Global Settings
