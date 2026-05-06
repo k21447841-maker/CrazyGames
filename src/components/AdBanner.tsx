@@ -6,14 +6,6 @@ export function AdBanner() {
   const bannerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Only load if ads and banner are enabled
-    if (!settings.adsEnabled || !settings.bannerEnabled) {
-      if (bannerRef.current) {
-         bannerRef.current.innerHTML = '';
-      }
-      return;
-    }
-
     if (bannerRef.current && bannerRef.current.innerHTML === '') {
       const container = document.createElement('div');
       container.className = "flex flex-col items-center justify-center w-full my-4 relative";
@@ -65,8 +57,6 @@ export function AdBanner() {
       bannerRef.current.appendChild(container);
     }
   }, [settings]);
-
-  if (!settings.adsEnabled || !settings.bannerEnabled) return null;
 
   return <div className="w-full flex justify-center overflow-hidden" ref={bannerRef} />;
 }

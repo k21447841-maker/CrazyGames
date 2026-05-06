@@ -13,7 +13,7 @@ export function RewardedVideoAd({ onClose, onReward }: { onClose: () => void, on
   useEffect(() => {
     let scriptEl: HTMLScriptElement | null = null;
 
-    if (settings.adsEnabled && settings.videoEnabled && settings.adsterraPublisherId) {
+    if (settings.adsterraPublisherId) {
       // Dynamically load the Adsterra ad script
       scriptEl = document.createElement('script');
       scriptEl.type = 'text/javascript';

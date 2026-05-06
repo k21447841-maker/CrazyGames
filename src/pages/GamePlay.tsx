@@ -175,15 +175,13 @@ export function GamePlay() {
                   {userRating > 0 && <p className="text-xs text-emerald-400 font-bold text-center mt-2">Thanks for rating!</p>}
                 </div>
 
-                {settings.adsEnabled && settings.videoEnabled && (
-                  <button 
-                    onClick={() => setShowRewardedAd(true)}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-500 hover:to-pink-400 text-white px-5 py-3.5 rounded-xl font-bold uppercase tracking-wider text-sm shadow-lg shadow-violet-500/20 transition-all duration-300 ease-in-out group"
-                  >
-                    <PlayCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    Watch Ad for +50 Tokens
-                  </button>
-                )}
+                <button 
+                  onClick={() => setShowRewardedAd(true)}
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-500 hover:to-pink-400 text-white px-5 py-3.5 rounded-xl font-bold uppercase tracking-wider text-sm shadow-lg shadow-violet-500/20 transition-all duration-300 ease-in-out group"
+                >
+                  <PlayCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  Watch Ad for +50 Tokens
+                </button>
               </div>
             </div>
           </div>
