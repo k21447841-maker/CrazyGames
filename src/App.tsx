@@ -4,6 +4,7 @@
  */
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from './context/AuthContext';
 import { AdProvider } from './context/AdContext';
 import { Navbar } from './components/Navbar';
@@ -32,6 +33,7 @@ export default function App() {
             </Routes>
             <Footer />
           </div>
+          <Analytics />
         </AdProvider>
       </AuthProvider>
     </Router>
