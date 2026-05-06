@@ -18,7 +18,6 @@ export function AdminDashboard() {
 
   // Form states
   const [formData, setFormData] = useState({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Action', tags: '' });
-  const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [adForm, setAdForm] = useState(settings);
 
@@ -113,12 +112,8 @@ export function AdminDashboard() {
       let finalThumbnailUrl = formData.thumbnail;
       let finalEmbedUrl = formData.embedUrl;
 
-      if (thumbFile) {
-        finalThumbnailUrl = await api.uploadFile(thumbFile, 'thumbnails');
-      }
       await api.createGame({ ...formData, thumbnail: finalThumbnailUrl, embedUrl: finalEmbedUrl, tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean) });
       setFormData({ title: '', description: '', thumbnail: '', embedUrl: '', category: 'Action', tags: '' });
-      setThumbFile(null);
       setActiveTab('games');
       fetchData();
     } catch (err: any) {
@@ -315,12 +310,10 @@ export function AdminDashboard() {
 
                 <div>
                   <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
-                    Thumbnail Image
+                    Thumbnail Image URL
                   </label>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Upload an image file for the thumbnail.</p>
-                  <div className="flex gap-4">
-                    <input type="file" required accept="image/*" onChange={e => { setThumbFile(e.target.files?.[0] || null); }} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-violet-600 file:text-white hover:file:bg-violet-500" />
-                  </div>
+                  <p className="text-xs text-slate-500 mb-2 font-medium">Paste an image URL directly.</p>
+                  <input type="text" required value={formData.thumbnail} onChange={e => setFormData({...formData, thumbnail: e.target.value})} placeholder="https://..." className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
                 </div>
 
                 <div>
