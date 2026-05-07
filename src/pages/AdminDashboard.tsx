@@ -22,6 +22,20 @@ export function AdminDashboard() {
   const [uploading, setUploading] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [adForm, setAdForm] = useState(settings);
+  
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setUploading(true);
+      try {
+        const url = await api.uploadFile(e.target.files[0]);
+        setFormData(prev => ({ ...prev, thumbnail: url }));
+      } catch (err: any) {
+        setError('Failed to upload thumbnail: ' + err.message);
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -375,10 +389,11 @@ export function AdminDashboard() {
 
                 <div>
                   <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
-                    Thumbnail Image URL
+                    Thumbnail Image
                   </label>
-                  <p className="text-xs text-slate-500 mb-2 font-medium">Paste an image URL directly.</p>
-                  <input type="text" required value={formData.thumbnail} onChange={e => setFormData({...formData, thumbnail: e.target.value})} placeholder="https://..." className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
+                  <p className="text-xs text-slate-500 mb-2 font-medium">Upload an image or paste a URL.</p>
+                  <input type="file" onChange={handleFileChange} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20 mb-2" />
+                  <input type="text" required value={formData.thumbnail} onChange={e => setFormData({...formData, thumbnail: e.target.value})} placeholder="Or paste URL..." className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-violet-500 outline-none transition-shadow shadow-inner shadow-black/20" />
                 </div>
 
                 <div>
