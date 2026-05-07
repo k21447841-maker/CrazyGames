@@ -39,6 +39,14 @@ export const generateMoreGames = () => {
       embedUrl: "/racer.html",
       category: "Racing",
       tags: ["racing", "traffic", "neon", "custom", "addictive", "html5"]
+    },
+    {
+      title: "Neon Platformer HD",
+      description: "Experience smooth mechanics and vibrant neon visuals in this high-definition platforming adventure.",
+      thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
+      embedUrl: "/platformer.html",
+      category: "Action",
+      tags: ["platformer", "neon", "hd", "custom", "addictive", "html5"]
     }
   ];
 };

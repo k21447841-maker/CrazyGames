@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Platformer Pro</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #0a0a1a; font-family: 'Inter', sans-serif; }
+        canvas { display: block; }
+        #ui { position: absolute; top: 10px; left: 10px; color: #fff; font-size: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="ui">Score: 0</div>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let player = { x: 50, y: 300, w: 40, h: 40, vy: 0, grounded: false };
+        let platforms = [{ x: 0, y: 400, w: 800, h: 20 }, { x: 300, y: 300, w: 200, h: 20 }];
+        let score = 0;
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function draw() {
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#6366f1';
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+            ctx.fillStyle = '#f43f5e';
+            platforms.forEach(p => ctx.fillRect(p.x, p.y, p.w, p.h));
+            
+            player.vy += 0.8;
+            player.y += player.vy;
+            player.grounded = false;
+            platforms.forEach(p => {
+                if(player.x < p.x + p.w && player.x + player.w > p.x && player.y + player.h > p.y && player.y + player.h < p.y + p.h) {
+                    player.y = p.y - player.h;
+                    player.vy = 0;
+                    player.grounded = true;
+                }
+            });
+            if(player.y > canvas.height) player.y = 100;
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('keydown', e => { if(e.key === ' ' && player.grounded) player.vy = -15; });
+        draw();
+    </script>
+</body>
+</html>

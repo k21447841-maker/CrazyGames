@@ -4,7 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Google AI Studio App</title>
-    <script src="https://pl29339854.profitablecpmratenetwork.com/f9/33/d0/f933d0525bcadceb8dc18f6b19d55f5e.js"></script>
+    <meta name="monetag" content="0c5e1e5476919855ad5d0bd172303ea0">
+    <script src="https://pl29369938.profitablecpmratenetwork.com/1c/6f/b8/1c6fb81cd22d2dc841a90436273bd78d.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
